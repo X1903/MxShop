@@ -20,17 +20,32 @@ from MxShop.settings import MEDIA_ROOT
 from django.views.static import serve
 # from goods.views_base import GoodsListView
 
+
+from rest_framework.routers import DefaultRouter
+from goods.views import GoodsListViewSet, CategoryViewset
+router = DefaultRouter()
+# 配置goods的url,这个basename是干啥的
+router.register(r'goods', GoodsListViewSet, base_name="goods")
+#
+router.register(r'categorys', CategoryViewset, base_name='categorys')
+
+
 from rest_framework.documentation import include_docs_urls
-from goods.views import GoodsListView
+
+goods_list = GoodsListViewSet.as_view({
+    'get': 'list',
+})
+
 
 urlpatterns = [
     url(r'^xadmin/', xadmin.site.urls),
+    url(r'^', include(router.urls)),
     # 调试登录
     url(r'^api-auth/', include('rest_framework.urls')),
     # 处理图片显示的url,使用Django自带serve,传入参数告诉它去哪个路径找，我们有配置好的路径MEDIAROOT
     url(r'^media/(?P<path>.*)$', serve, {'document_root':MEDIA_ROOT}),
-    url(r'goods/$', GoodsListView.as_view(), name='goods-list'),
-
+    # # url(r'goods/$', GoodsListView.as_view(), name='goods-list'),
+    #
     url(r'docs/$', include_docs_urls(title='慕雪生鲜')),
 
 ]
